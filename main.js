@@ -83,7 +83,7 @@ async function onSubmit(octokit) {
 	// const auth = createOAuthUserAuth({
 	// });
 
-	let csvForm = document.getElementById("csv-form");
+	let csvForm = document.getElementById("csv");
 	if (csvForm.files === null) {
 		return;
 	}
