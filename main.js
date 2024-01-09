@@ -73,7 +73,7 @@ function getUsers(file) {
 			
 			resolve(validEmails.map((col) => [col[email], col[github]]));
 		}
-		reader.readAsText(csv);
+		reader.readAsText(file);
 	});
 }
 
@@ -101,9 +101,9 @@ async function onSubmit(octokit) {
 		// Quickly check for other github possibilities:
 		github = github.replace("github.com/", "");
 		github = github.replace("https://", "");
+		github = github.replace("www.", "");
 		github = github.replace("/", "");
 		github = github.replace(".", "");
-		github = github.replace("www", "");
 
 		octokit.request('PUT /orgs/{org}/memberships/{username}', {
 			org: 'GDACollab',
