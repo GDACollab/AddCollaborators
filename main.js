@@ -88,7 +88,7 @@ async function onSubmit(octokit) {
 		return;
 	}
 
-	let csv = csv.files[0];
+	let csv = csvForm.files[0];
 	let users = await getUsers(csv);
 	if (users instanceof Error) {
 		alert(users);
