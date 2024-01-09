@@ -38,7 +38,10 @@ window.onload = function() {
 			}
 		});
 
-		document.getElementById("csv-form").addEventListener("submit", onSubmit.bind(octokit));
+		document.getElementById("csv-form").addEventListener("submit", (e) => {
+			e.preventDefault();
+			onSubmit(octokit);
+		});
 	}
 }
 
@@ -54,7 +57,15 @@ function getUsers(file) {
 
 			let email = header.findIndex((col) => { col.contains("Email") });
 
+			if (email === -1) {
+				reject(new Error(`Could not find "Email" header for user email in CSV.`));
+			}
+
 			let github = header.findIndex((col) => { col.contains("GitHub") });
+
+			if (github === -1) {
+				reject(new Error(`Could not find "GitHub" header for github username in CSV.`));
+			}
 
 			// Double check we have a ucsc.edu email.
 			let validEmails = rows.filter((col) => col[email].endsWith("@ucsc.edu"));
@@ -66,8 +77,7 @@ function getUsers(file) {
 	});
 }
 
-async function onSubmit(octokit, e) {
-	e.preventDefault();
+async function onSubmit(octokit) {
 	// Octokit.js
 	// https://github.com/octokit/core.js#readme
 	// const auth = createOAuthUserAuth({
@@ -80,9 +90,20 @@ async function onSubmit(octokit, e) {
 
 	let csv = csv.files[0];
 	let users = await getUsers(csv);
+	if (users instanceof Error) {
+		alert(users);
+		return;
+	}
 
 	users.forEach(async (user) => {
-		let [email, github] = user;
+		var [email, github] = user;
+
+		// Quickly check for other github possibilities:
+		github = github.replace("github.com/", "");
+		github = github.replace("https://", "");
+		github = github.replace("/", "");
+		github = github.replace(".", "");
+		github = github.replace("www", "");
 
 		octokit.request('PUT /orgs/{org}/memberships/{username}', {
 			org: 'GDACollab',
