@@ -29,6 +29,7 @@ io.on('connection', (socket) => {
 	let octokit;
 	socket.on('login', (code, state) => {
 		console.log("Login detected.");
+		// All associated with an OAuth app: https://github.com/organizations/GDACollab/settings/applications/2438315
 		octokit = new Octokit({
 			authStrategy: createOAuthUserAuth,
 			auth: {
