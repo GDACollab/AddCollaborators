@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html>
 	<head>
+		<script src="/socket.io/socket.io.js"></script>
 		<script src="main.js" type="module"></script>
 	</head>
 	<body>
 		<!--Why make this a webpage instead of an offline python script?-->
-		<!-- Makes it easier to access (especially for the non-programmers). The only hard parts are: downloading the CSV, and getting the token. -->
+		<!-- Makes it easier to access (especially for the non-programmers). The only hard parts are: downloading the CSV, and making sure its headers match what the javascript expects. -->
 		<div id="login">
 			<button id="login-button">Login</button>
 		</div>
@@ -15,7 +16,7 @@
 					Upload your .CSVs of emails here:
 					<input type="file" id="csv"/>
 				</p>
-				<input type="submit"/>
+				<input type="submit" value="Submit"/>
 			</form>
 		</div>
 	</body>

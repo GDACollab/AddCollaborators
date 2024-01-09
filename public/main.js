@@ -1,12 +1,11 @@
-import { Octokit, App } from "https://esm.sh/octokit";
-import { createOAuthUserAuth } from "https://esm.sh/@octokit/auth-oauth-user";
+const ID = "95d76b7c8a73286e6107";
 
-const ID = "Iv1.612aedd76cd97601";
+const socket = io();
 
 function onLogin() {
 	let state = (new Date().getTime() + 15138 + Math.random());
 	localStorage.setItem("state", state);
-	location.assign(`https://github.com/login/oauth/authorize?client_id=${ID}&redirect_uri=https://gdacollab.github.io/AddCollaborators/&state=${state}&allow_signup=false`);
+	location.assign(`https://github.com/login/oauth/authorize?client_id=${ID}&redirect_uri=http://localhost:8080/&state=${state}&allow_signup=false&scope=admin:org`);
 }
 
 window.onload = function() {
@@ -24,26 +23,27 @@ window.onload = function() {
 			return;
 		}
 
+		socket.emit('login', params.get("code"), params.get("state"));
+
 		document.getElementById("login").hidden = true;
 		document.getElementById("upload-csv").hidden = false;
 
-		const octokit = new Octokit({
-			authStrategy: createOAuthUserAuth,
-			auth: {
-				clientId: "Iv1.612aedd76cd97601",
-				// Not really secret anymore! But who cares, really. Requires a login in conjunction with the secret.
-				clientSecret: "ac07bfadcc98bd5f00e553dd44a000c407882503",
-				code: params.get("code"),
-				state: localStorage.getItem("state"),
-			}
-		});
-
 		document.getElementById("csv-form").addEventListener("submit", (e) => {
 			e.preventDefault();
-			onSubmit(octokit);
+			onSubmit();
 		});
 	}
 }
+
+socket.on("addErr", (err) => {
+	if (err.status === 400) {
+		alert("Please log in again.");
+		document.getElementById("login").hidden = false;
+		document.getElementById("upload-csv").hidden = true;
+	} else {
+		console.warn(err);
+	}
+});
 
 function getUsers(file) {
 	return new Promise(function (resolve, reject) {
@@ -76,11 +76,7 @@ function getUsers(file) {
 	});
 }
 
-async function onSubmit(octokit) {
-	// Octokit.js
-	// https://github.com/octokit/core.js#readme
-	// const auth = createOAuthUserAuth({
-	// });
+async function onSubmit() {
 
 	let csvForm = document.getElementById("csv");
 	if (csvForm.files === null) {
@@ -94,26 +90,5 @@ async function onSubmit(octokit) {
 		return;
 	}
 
-	users.forEach(async (user) => {
-		var [email, github] = user;
-
-		// Quickly check for other github possibilities:
-		github = github.replace("github.com/", "");
-		github = github.replace("https://", "");
-		github = github.replace("www.", "");
-		github = github.replace("/", "");
-		github = github.replace(".", "");
-
-		octokit.request('PUT /orgs/{org}/memberships/{username}', {
-			org: 'GDACollab',
-			username: github,
-			role: 'member',
-			headers: {
-				'X-Github-Api-Version': '2022-11-28'
-			}
-		}).catch((err) => {
-
-			console.warn(`Could not add user ${github}: ${error.status} ${error.response}`);
-		});
-	});
+	socket.emit('addUsers', users);
 }
