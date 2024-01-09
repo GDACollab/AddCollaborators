@@ -47,7 +47,6 @@ window.onload = function() {
 
 function getUsers(file) {
 	return new Promise(function (resolve, reject) {
-
 		let reader = new FileReader();
 		reader.onloadend = function() {
 			let rowStrings = reader.result.split("\n");
@@ -55,13 +54,13 @@ function getUsers(file) {
 			
 			let header = rows[0];
 
-			let email = header.findIndex((col) => { col.contains("Email") });
+			let email = header.findIndex((col) => { col.includes("Email") });
 
 			if (email === -1) {
 				reject(new Error(`Could not find "Email" header for user email in CSV.`));
 			}
 
-			let github = header.findIndex((col) => { col.contains("GitHub") });
+			let github = header.findIndex((col) => { col.includes("GitHub") });
 
 			if (github === -1) {
 				reject(new Error(`Could not find "GitHub" header for github username in CSV.`));
