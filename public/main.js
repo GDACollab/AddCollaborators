@@ -60,17 +60,17 @@ function getUsers(file) {
 				reject(new Error(`Could not find "Email" header for user email in CSV.`));
 			}
 
-			let github = header.findIndex((col) => col.includes("GitHub"));
+			// let github = header.findIndex((col) => col.includes("GitHub"));
 
-			if (github === -1) {
-				reject(new Error(`Could not find "GitHub" header for github username in CSV.`));
-			}
+			// if (github === -1) {
+			// 	reject(new Error(`Could not find "GitHub" header for github username in CSV.`));
+			// }
 
 			// Double check we have a ucsc.edu email, as well as a valid entry.
 			let validEmails = rows.filter((col, i) => i > 0 && col.length === header.length && col[email].endsWith("@ucsc.edu"));
 
 			
-			resolve(validEmails.map((col) => [col[email], col[github]]));
+			resolve(validEmails.map((col) => [col[email]]));
 		}
 		reader.readAsText(file);
 	});

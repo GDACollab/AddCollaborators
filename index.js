@@ -27,25 +27,24 @@ app.get('/', function(req, res) {
 io.on('connection', (socket) => {
 	console.log("Connected.");
 	let octokit;
-	socket.on('login', (code, state) => {
-		console.log("Login detected.");
+	socket.on('login', async (code, state) => {
+		const auth = createOAuthUserAuth({
+			clientId: "95d76b7c8a73286e6107",
+			// Not really secret anymore! But who cares, really. Requires a login in conjunction with the secret.
+			clientSecret: "d4490387db734668ab5716ccf4e728a5b1cc05ac",
+			code: code,
+			state: state,
+			redirectUrl: "http://localhost:8080/"
+		});
 		// All associated with an OAuth app: https://github.com/organizations/GDACollab/settings/applications/2438315
+		const { token } = await auth();
 		octokit = new Octokit({
-			authStrategy: createOAuthUserAuth,
-			auth: {
-				clientId: "95d76b7c8a73286e6107",
-				// Not really secret anymore! But who cares, really. Requires a login in conjunction with the secret.
-				clientSecret: "d4490387db734668ab5716ccf4e728a5b1cc05ac",
-				code: code,
-				state: state,
-			}
+			auth: token
 		});
 	});
 
-	socket.on('addUsers', (users) => {
-		users.forEach(async (user) => {
-			var [email, github] = user;
-	
+	socket.on('addUsers', async (users) => {
+		for (let [email] of users) {
 			// Quickly check for other github possibilities:
 			// github = github.replace("github.com/", "");
 			// github = github.replace("https://", "");
@@ -53,7 +52,7 @@ io.on('connection', (socket) => {
 			// github = github.replace("/", "");
 			// github = github.replace(".", "");
 	
-			octokit.request('POST /orgs/{org}/invitations', {
+			await octokit.request('POST /orgs/{org}/invitations', {
 				org: 'GDACollab',
 				email: email,
 				role: 'direct_member',
@@ -64,7 +63,7 @@ io.on('connection', (socket) => {
 				socket.emit("addErr", err);
 				console.warn(`Could not add user ${github}: ${err.status} ${err.response.data.message}`);
 			});
-		});
+		}
 	});
 	
 });
