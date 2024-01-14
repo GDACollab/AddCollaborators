@@ -79,7 +79,7 @@ function startServer(server, port, host) {
 	}
 
 	function success() {
-		console.log(`Listening at https://${host}:${port}`)
+		console.log(`Listening at http://${host}:${port}`)
 	}
 	server.listen(port, host)
 	.on('error', error)
