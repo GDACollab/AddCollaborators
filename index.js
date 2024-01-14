@@ -1,5 +1,5 @@
 const { Octokit, App } = require("octokit");
-const {createOAuthUserAuth} = require("@octokit/auth-oauth-user");
+const { createOAuthUserAuth } = require("@octokit/auth-oauth-user");
 const express = require("express");
 const http = require("http");
 const fs = require("fs").promises;
@@ -11,17 +11,17 @@ const io = new Server(server);
 
 app.use(express.static('public'));
 
-app.get('/', function(req, res) {
+app.get('/', function (req, res) {
 	fs.readFile(__dirname + "/index.html").then(contents => {
 		res.setHeader("Content-Head", "text/html");
 		res.writeHead(200);
 		res.end(contents);
 	})
-	.catch((err) => {
-		res.writeHead(500);
-		res.end(err);
-		return;
-	});
+		.catch((err) => {
+			res.writeHead(500);
+			res.end(err);
+			return;
+		});
 });
 
 io.on('connection', (socket) => {
@@ -51,7 +51,7 @@ io.on('connection', (socket) => {
 			// github = github.replace("www.", "");
 			// github = github.replace("/", "");
 			// github = github.replace(".", "");
-	
+
 			await octokit.request('POST /orgs/{org}/invitations', {
 				org: 'GDACollab',
 				email: email,
@@ -61,13 +61,13 @@ io.on('connection', (socket) => {
 				}
 			}).catch((err) => {
 				socket.emit("addErr", err);
-				console.warn(`Could not add user ${github}: ${err.status} ${err.response.data.message}`);
+				console.warn(`Could not add user ${email}: ${err.status} ${err.response.data.message}`);
 			});
 		}
 	});
-	
+
 });
-	
+
 function startServer(server, port, host) {
 	function error(e) {
 		server.removeListener('error', error);
@@ -81,8 +81,8 @@ function startServer(server, port, host) {
 		console.log(`Listening at http://${host}:${port}`)
 	}
 	server.listen(port, host)
-	.on('error', error)
-	.on('listening', success)
+		.on('error', error)
+		.on('listening', success)
 }
 
 startServer(server, 8080, "localhost");
