@@ -46,15 +46,22 @@ io.on('connection', (socket) => {
 	socket.on('addUsers', async (users) => {
 		for (let [email] of users) {
 			// Quickly check for other github possibilities:
-			// github = github.replace("github.com/", "");
-			// github = github.replace("https://", "");
-			// github = github.replace("www.", "");
-			// github = github.replace("/", "");
-			// github = github.replace(".", "");
+			github = github.replace("github.com/", "");
+			github = github.replace("https://", "");
+			github = github.replace("www.", "");
+			github = github.replace("/", "");
+			github = github.replace(".", "");
+
+			let user_res = await octokit.request('GET /users/{username}/', {
+				username: github,
+				headers: {
+					'X-Github-Api-Version': '2022-11-28'
+				}
+			});
 
 			await octokit.request('POST /orgs/{org}/invitations', {
 				org: 'GDACollab',
-				email: email,
+				id: user_res.data.id,
 				role: 'direct_member',
 				headers: {
 					'X-Github-Api-Version': '2022-11-28'
